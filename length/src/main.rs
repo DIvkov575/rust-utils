@@ -1,14 +1,32 @@
-use std::fs;
+use std::fs::{self};
+use std::io::{BufRead, BufReader, Error};
 
-fn main() {
+fn main() -> Result<(), Error> {
+    // args
     let args: Vec<String> = std::env::args().collect();
 
-    if args[1] == "file" {
-        // let full_path = &args[0] + &args[2];
-        let contents: String = fs::read_to_string(&args[2]).unwrap();
-        let a = contents.len();
-        print!("{:#?}", a);
-    } else {
-        print!("{:#?}", args[1].len());
+    match args[1].as_str() {
+        "file" => {
+            let contents: String = fs::read_to_string(&args[2])?;
+            let a = contents.len();
+            print!("{}", a);
+        }
+        "lines" => {
+            let lines_count = BufReader::new(fs::File::open(&args[2])?)
+                .lines()
+                .collect::<Vec<_>>()
+                .len();
+            // let stdout = io::stdout();
+            // let mut handle = stdout.lock();
+            print!("{}", lines_count);
+        }
+        "str" => {
+            print!("{:#?}", args[2].len());
+        }
+
+        _ => {
+            print!("Please specify (file, lines, or str) for first param, followed by corresponding value");
+        }
     }
+    Ok(())
 }
